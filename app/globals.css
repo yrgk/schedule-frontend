@@ -1,26 +1,337 @@
-@import "tailwindcss";
+/* :root {
+  --tg-theme-bg-color: #f4f7fb;
+  --tg-theme-text-color: #152033;
+  --tg-theme-hint-color: #8c97a8;
+  --tg-theme-link-color: #1877f2;
+  --tg-theme-button-color: #1e88ff;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #e9eef5;
+  --tg-theme-header-bg-color: #ffffff;
+  --tg-theme-bottom-bar-bg-color: #ffffff;
+  --tg-theme-accent-text-color: #1e88ff;
+  --tg-theme-section-bg-color: #ffffff;
+  --tg-theme-section-header-text-color: #1e88ff;
+  --tg-theme-section-separator-color: #dfe6ef;
+  --tg-theme-subtitle-text-color: #6f7c90;
+  --tg-theme-destructive-text-color: #e14b4b;
+} */
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+* {
+  box-sizing: border-box;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  min-height: 100%;
+  margin: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-width: 320px;
+  min-height: 100dvh;
+  overflow-y: auto;
+  background: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.group-selector {
+  display: grid;
+  width: min(100%, 560px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: max(20px, env(safe-area-inset-top)) 16px
+    max(32px, env(safe-area-inset-bottom));
+  place-items: center;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+.group-selector-content {
+  width: min(100%, 360px);
+  transform: translateY(-7vh);
+}
+
+.group-selector-animation {
+  width: min(100%, 172px);
+  height: 172px;
+  margin: 0 auto 18px;
+}
+
+.group-selector-details {
+  text-align: center;
+}
+
+.group-selector-details h1 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.group-selector-details > p {
+  margin: 8px 0 20px;
+  color: var(--tg-theme-subtitle-text-color);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.group-list {
+  display: grid;
+  gap: 10px;
+}
+
+.group-list button {
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  cursor: pointer;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.group-list button:focus-visible {
+  outline: 2px solid var(--tg-theme-link-color);
+  outline-offset: 3px;
+}
+
+.group-list button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.group-selector-message {
+  margin-bottom: 0 !important;
+}
+
+.group-selector-message.is-error {
+  color: var(--tg-theme-destructive-text-color) !important;
+}
+
+.schedule-page {
+  width: min(100%, 560px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 16px max(32px, env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.calendar {
+  overflow: hidden;
+  margin: 0 -16px;
+  padding: 0 16px 20px;
+  background: var(--tg-theme-header-bg-color);
+  border-bottom: 1px solid var(--tg-theme-section-separator-color);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.calendar-header h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 32px;
+}
+
+.group-name {
+  margin: 12px 0 18px;
+  color: var(--tg-theme-subtitle-text-color);
+  font-size: 17px;
+  text-align: center;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(38px, 1fr));
+  gap: 4px;
+}
+
+.horizontal-pager {
+  display: flex;
+  width: calc(100% + 16px);
+  margin-inline: -8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  touch-action: pan-x pan-y;
+}
+
+.horizontal-pager::-webkit-scrollbar {
+  display: none;
+}
+
+.horizontal-pager-page {
+  flex: 0 0 100%;
+  min-width: 0;
+  padding-inline: 8px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.horizontal-pager[data-dragging] {
+  cursor: grabbing;
+}
+
+.calendar-day {
+  display: grid;
+  width: 100%;
+  min-height: 68px;
+  padding: 0;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  color: var(--tg-theme-hint-color);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.calendar-day:focus-visible {
+  outline: 2px solid var(--tg-theme-link-color);
+  outline-offset: 2px;
+}
+
+.calendar-day span {
+  color: var(--tg-theme-text-color);
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-day.is-selected {
+  background: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+}
+
+.calendar-day.is-selected span {
+  color: var(--tg-theme-button-text-color);
+}
+
+.lessons {
+  overflow: clip;
+  padding-top: 28px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.section-heading span {
+  color: var(--tg-theme-subtitle-text-color);
+  font-size: 14px;
+}
+
+.lesson-list {
+  display: grid;
+  gap: 10px;
+}
+
+.lesson-status {
+  display: grid;
+  min-height: 144px;
+  margin: 0;
+  place-items: center;
+  color: var(--tg-theme-subtitle-text-color);
+  font-size: 15px;
+  text-align: center;
+}
+
+.lesson-status.is-error {
+  color: var(--tg-theme-destructive-text-color);
+}
+
+.lesson-card {
+  display: grid;
+  gap: 10px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: var(--tg-theme-section-bg-color);
+}
+
+.lesson-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--tg-theme-hint-color);
+  font-size: 14px;
+}
+
+.lesson-card time {
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.lesson-card h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .horizontal-pager {
+    scroll-behavior: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .calendar-days {
+    gap: 0;
+  }
+
+  .lesson-card {
+    gap: 8px;
+  }
 }

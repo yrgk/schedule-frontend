@@ -1,0 +1,10 @@
+services:
+  schedule-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SCHEDULE_API_BASE_URL: ${SCHEDULE_API_BASE_URL:-}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    restart: unless-stopped
