@@ -108,6 +108,12 @@ export function TelegramApp() {
     setScreen("schedule");
   };
 
+  const handleChangeGroup = () => {
+    impactOccurred("light");
+    setStorageError(undefined);
+    setScreen("group-selection");
+  };
+
   return (
     <>
       <Script
@@ -127,7 +133,16 @@ export function TelegramApp() {
         />
       ) : null}
       {scriptStatus === "ready" && isStorageChecked && screen === "schedule" && selectedGroup ? (
-        <AppShell groupId={selectedGroup.id} groupName={selectedGroup.name} />
+        <AppShell
+          groupId={selectedGroup.id}
+          groupName={selectedGroup.name}
+          onChangeGroup={handleChangeGroup}
+        />
+      ) : null}
+      {scriptStatus === "error" ? (
+        <main aria-live="polite" className="app-load-error">
+          Не удалось загрузить Telegram Web Apps. Откройте приложение ещё раз.
+        </main>
       ) : null}
     </>
   );

@@ -1,4 +1,5 @@
 import type { Group, Lesson } from "@/app/_data/schedule";
+import { withAppBasePath } from "@/app/_config/app";
 
 type ScheduleLesson = Readonly<{
   end_time: string;
@@ -52,7 +53,7 @@ export function formatScheduleDay(date: Date) {
 }
 
 export async function getAvailableGroups(signal: AbortSignal) {
-  const response = await fetch("/api/schedule/groups/", {
+  const response = await fetch(withAppBasePath("/api/schedule/groups/"), {
     cache: "no-store",
     signal,
   });
@@ -75,10 +76,13 @@ export async function getScheduleForDay(
   day: string,
   signal: AbortSignal,
 ) {
-  const response = await fetch(`/api/schedule/${groupId}?${new URLSearchParams({ day })}`, {
-    cache: "no-store",
-    signal,
-  });
+  const response = await fetch(
+    `${withAppBasePath(`/api/schedule/${groupId}`)}?${new URLSearchParams({ day })}`,
+    {
+      cache: "no-store",
+      signal,
+    },
+  );
 
   if (!response.ok) {
     throw new Error("Не удалось загрузить расписание.");

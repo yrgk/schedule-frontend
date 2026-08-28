@@ -1,5 +1,7 @@
 export type HapticStyle = "light" | "medium" | "heavy" | "rigid" | "soft";
 
+const CLOUD_STORAGE_TIMEOUT = 5_000;
+
 type CloudStorage = Readonly<{
   getItem: (
     key: string,
@@ -17,6 +19,7 @@ type TelegramWebApp = Readonly<{
   HapticFeedback?: {
     impactOccurred: (style: HapticStyle) => void;
   };
+  expand?: () => void;
   isVersionAtLeast?: (version: string) => boolean;
   ready?: () => void;
 }>;
@@ -39,8 +42,28 @@ function getWebApp() {
   return window.Telegram?.WebApp;
 }
 
+function withTimeout<Value>(promise: Promise<Value>, fallback: Value) {
+  return new Promise<Value>((resolve) => {
+    const timeout = window.setTimeout(() => resolve(fallback), CLOUD_STORAGE_TIMEOUT);
+
+    void promise.then(
+      (value) => {
+        window.clearTimeout(timeout);
+        resolve(value);
+      },
+      () => {
+        window.clearTimeout(timeout);
+        resolve(fallback);
+      },
+    );
+  });
+}
+
 export function prepareTelegramWebApp() {
-  getWebApp()?.ready?.();
+  const webApp = getWebApp();
+
+  webApp?.ready?.();
+  webApp?.expand?.();
 }
 
 export function impactOccurred(style: HapticStyle) {
@@ -55,7 +78,7 @@ export function readStoredGroup() {
     return Promise.resolve<string | null>(null);
   }
 
-  return new Promise<string | null>((resolve) => {
+  const request = new Promise<string | null>((resolve) => {
     try {
       cloudStorage.getItem(GROUP_STORAGE_KEY, (error, value) => {
         resolve(error ? null : value);
@@ -64,6 +87,8 @@ export function readStoredGroup() {
       resolve(null);
     }
   });
+
+  return withTimeout(request, null);
 }
 
 export function saveStoredGroup(groupId: string) {
@@ -74,7 +99,7 @@ export function saveStoredGroup(groupId: string) {
     return Promise.resolve(false);
   }
 
-  return new Promise<boolean>((resolve) => {
+  const request = new Promise<boolean>((resolve) => {
     try {
       cloudStorage.setItem(GROUP_STORAGE_KEY, groupId, (error, success) => {
         resolve(!error && success);
@@ -83,4 +108,6 @@ export function saveStoredGroup(groupId: string) {
       resolve(false);
     }
   });
+
+  return withTimeout(request, false);
 }

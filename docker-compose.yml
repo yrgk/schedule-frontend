@@ -5,6 +5,14 @@ services:
       dockerfile: Dockerfile
     environment:
       SCHEDULE_API_BASE_URL: ${SCHEDULE_API_BASE_URL:-}
+    networks:
+      - default
+      - caddy
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
     restart: unless-stopped
+
+networks:
+  caddy:
+    name: ${CADDY_NETWORK:-schedule-backend_default}
+    external: true

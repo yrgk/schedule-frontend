@@ -49,7 +49,7 @@ type ScheduleAction =
   | Readonly<{ type: "select-date"; date: Date }>;
 
 type ScheduleData =
-  | Readonly<{ day: string; error: string; status: "error" }>
+  | Readonly<{ day: string; status: "error" }>
   | Readonly<{
       day: string;
       lessons: readonly Lesson[];
@@ -155,6 +155,7 @@ function scheduleReducer(
 type AppShellProps = Readonly<{
   groupId: number;
   groupName: string;
+  onChangeGroup: () => void;
 }>;
 
 type HorizontalPagerProps = Readonly<{
@@ -365,7 +366,7 @@ function HorizontalPager({
   );
 }
 
-export function AppShell({ groupId, groupName }: AppShellProps) {
+export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
   const [schedule, dispatch] = useReducer(
     scheduleReducer,
     undefined,
@@ -397,17 +398,13 @@ export function AppShell({ groupId, groupName }: AppShellProps) {
           status: "success",
         });
       })
-      .catch((error: unknown) => {
+      .catch(() => {
         if (controller.signal.aborted) {
           return;
         }
 
         setScheduleData({
           day: selectedScheduleDay,
-          error:
-            error instanceof Error
-              ? error.message
-              : "Не удалось загрузить расписание.",
           status: "error",
         });
       });
@@ -426,6 +423,7 @@ export function AppShell({ groupId, groupName }: AppShellProps) {
   };
 
   const changeWeek = (direction: SwipeDirection) => {
+    impactOccurred("light");
     dispatch({ type: "change-week", direction });
   };
 
@@ -452,9 +450,39 @@ export function AppShell({ groupId, groupName }: AppShellProps) {
 
       <section className="calendar" aria-labelledby="calendar-title">
         <header className="calendar-header">
+          <button
+            aria-label="Предыдущая неделя"
+            className="calendar-navigation-button"
+            onClick={() => changeWeek(-1)}
+            type="button"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
           <h2 id="calendar-title">{getCalendarTitle(weekDays)}</h2>
+          <button
+            aria-label="Следующая неделя"
+            className="calendar-navigation-button"
+            onClick={() => changeWeek(1)}
+            type="button"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
         </header>
-        <p className="group-name">{groupName}</p>
+        <button
+          aria-label={`Выбрать другую группу. Текущая группа: ${groupName}`}
+          className="group-name"
+          onClick={onChangeGroup}
+          type="button"
+        >
+          <span>{groupName}</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
         <HorizontalPager
           ariaLabel="Недели календаря"
           className="calendar-pager"
@@ -532,9 +560,7 @@ export function AppShell({ groupId, groupName }: AppShellProps) {
                   </p>
                 ) : null}
                 {isLoadedDay && scheduleData.status === "error" ? (
-                  <p className="lesson-status is-error" role="alert">
-                    {scheduleData.error}
-                  </p>
+                  <p className="lesson-status">Занятий нет.</p>
                 ) : null}
                 {isLoadedDay && scheduleData.status === "success" ? (
                   scheduleData.lessons.length > 0 ? (
@@ -552,7 +578,7 @@ export function AppShell({ groupId, groupName }: AppShellProps) {
                       ))}
                     </ol>
                   ) : (
-                    <p className="lesson-status">На этот день занятий нет.</p>
+                    <p className="lesson-status">Занятий нет.</p>
                   )
                 ) : null}
               </div>

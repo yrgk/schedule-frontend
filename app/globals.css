@@ -38,6 +38,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.app-load-error {
+  display: grid;
+  min-height: 100dvh;
+  padding: 24px;
+  place-items: center;
+  color: var(--tg-theme-destructive-text-color);
+  font-size: 16px;
+  line-height: 1.45;
+  text-align: center;
+}
+
 ol {
   margin: 0;
   padding: 0;
@@ -158,8 +169,9 @@ ul {
 }
 
 .calendar-header {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
   text-align: center;
 }
 
@@ -169,11 +181,65 @@ ul {
   line-height: 32px;
 }
 
+.calendar-navigation-button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--tg-theme-link-color);
+  cursor: pointer;
+}
+
+.calendar-navigation-button svg,
+.group-name svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.calendar-navigation-button:focus-visible,
+.group-name:focus-visible {
+  outline: 2px solid var(--tg-theme-link-color);
+  outline-offset: 2px;
+}
+
 .group-name {
-  margin: 12px 0 18px;
+  display: flex;
+  max-width: 100%;
+  min-height: 36px;
+  margin: 6px auto 18px;
+  padding: 4px 4px 4px 12px;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
   color: var(--tg-theme-subtitle-text-color);
+  cursor: pointer;
+  font: inherit;
   font-size: 17px;
   text-align: center;
+}
+
+.group-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-name svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
 }
 
 .calendar-days {
@@ -283,10 +349,6 @@ ul {
   color: var(--tg-theme-subtitle-text-color);
   font-size: 15px;
   text-align: center;
-}
-
-.lesson-status.is-error {
-  color: var(--tg-theme-destructive-text-color);
 }
 
 .lesson-card {
