@@ -21,6 +21,7 @@ import {
 import { impactOccurred } from "@/app/_lib/telegram-web-app";
 
 const DAYS_IN_WEEK = 7;
+const DAY_SCROLL_END_DELAY = 45;
 const MOUSE_DRAG_THRESHOLD = 8;
 const SCROLL_END_DELAY = 120;
 const WHEEL_SCROLL_MULTIPLIER = 0.45;
@@ -164,6 +165,7 @@ type HorizontalPagerProps = Readonly<{
   className: string;
   pageKey: string;
   onPageChange: (direction: SwipeDirection) => void;
+  scrollEndDelay?: number;
 }>;
 
 function HorizontalPager({
@@ -172,6 +174,7 @@ function HorizontalPager({
   className,
   pageKey,
   onPageChange,
+  scrollEndDelay = SCROLL_END_DELAY,
 }: HorizontalPagerProps) {
   const pagerRef = useRef<HTMLDivElement>(null);
   const scrollEndTimeout = useRef<number | undefined>(undefined);
@@ -199,9 +202,9 @@ function HorizontalPager({
     clearScrollEndTimeout();
     scrollEndTimeout.current = window.setTimeout(
       releasePageChangeLock,
-      SCROLL_END_DELAY,
+      scrollEndDelay,
     );
-  }, [clearScrollEndTimeout, releasePageChangeLock]);
+  }, [clearScrollEndTimeout, releasePageChangeLock, scrollEndDelay]);
 
   useLayoutEffect(() => {
     const pager = pagerRef.current;
@@ -261,7 +264,7 @@ function HorizontalPager({
     }
 
     clearScrollEndTimeout();
-    scrollEndTimeout.current = window.setTimeout(settlePage, SCROLL_END_DELAY);
+    scrollEndTimeout.current = window.setTimeout(settlePage, scrollEndDelay);
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -539,6 +542,7 @@ export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
           className="lessons-pager"
           pageKey={schedule.selectedDate.toISOString()}
           onPageChange={changeDay}
+          scrollEndDelay={DAY_SCROLL_END_DELAY}
         >
           {[-1, 0, 1].map((offset) => {
             const date = addDays(schedule.selectedDate, offset);
@@ -555,9 +559,10 @@ export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
                 key={date.toISOString()}
               >
                 {!isLoadedDay ? (
-                  <p className="lesson-status" role="status">
-                    Загружаем расписание…
-                  </p>
+                  <div className="lesson-status lesson-loading" role="status">
+                    <span aria-hidden="true" className="lesson-loading-spinner" />
+                    <span className="visually-hidden">Загружаем расписание…</span>
+                  </div>
                 ) : null}
                 {isLoadedDay && scheduleData.status === "error" ? (
                   <p className="lesson-status">Занятий нет.</p>
@@ -566,13 +571,20 @@ export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
                   scheduleData.lessons.length > 0 ? (
                     <ol className="lesson-list">
                       {scheduleData.lessons.map((lesson) => (
-                        <li key={`${lesson.time}-${lesson.room}-${lesson.title}`}>
+                        <li
+                          key={`${lesson.time}-${lesson.room}-${lesson.title}-${lesson.teacher}`}
+                        >
                           <article className="lesson-card">
                             <div className="lesson-card-top">
                               <time>{lesson.time}</time>
                               <span>{lesson.room}</span>
                             </div>
-                            <h3>{lesson.title}</h3>
+                            <div className="lesson-card-details">
+                              <h3>{lesson.title}</h3>
+                              {lesson.teacher ? (
+                                <p className="lesson-teacher">{lesson.teacher}</p>
+                              ) : null}
+                            </div>
                           </article>
                         </li>
                       ))}

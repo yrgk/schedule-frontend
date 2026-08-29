@@ -77,7 +77,7 @@ ul {
   width: min(100%, 560px);
   min-height: 100dvh;
   margin: 0 auto;
-  padding: max(20px, env(safe-area-inset-top)) 16px
+  padding: max(36px, calc(env(safe-area-inset-top) + 20px)) 16px
     max(32px, env(safe-area-inset-bottom));
   place-items: center;
   -webkit-tap-highlight-color: transparent;
@@ -86,7 +86,6 @@ ul {
 
 .group-selector-content {
   width: min(100%, 360px);
-  transform: translateY(-7vh);
 }
 
 .group-selector-animation {
@@ -351,6 +350,21 @@ ul {
   text-align: center;
 }
 
+.lesson-loading-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--tg-theme-section-separator-color);
+  border-top-color: var(--tg-theme-button-color);
+  border-radius: 50%;
+  animation: lesson-loading-spin 0.8s linear infinite;
+}
+
+@keyframes lesson-loading-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
 .lesson-card {
   display: grid;
   gap: 10px;
@@ -382,9 +396,26 @@ ul {
   overflow-wrap: anywhere;
 }
 
+.lesson-card-details {
+  display: grid;
+  gap: 4px;
+}
+
+.lesson-teacher {
+  margin: 0;
+  color: var(--tg-theme-subtitle-text-color);
+  font-size: 15px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .horizontal-pager {
     scroll-behavior: auto;
+  }
+
+  .lesson-loading-spinner {
+    animation: none;
   }
 }
 

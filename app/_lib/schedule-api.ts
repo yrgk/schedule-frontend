@@ -40,6 +40,7 @@ function isScheduleLesson(value: unknown): value is ScheduleLesson {
 function toLesson(lesson: ScheduleLesson): Lesson {
   return {
     room: lesson.location_short,
+    teacher: lesson.teacher_name,
     time: `${lesson.start_time} — ${lesson.end_time}`,
     title: lesson.title,
   };

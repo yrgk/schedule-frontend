@@ -1,5 +1,6 @@
 export type Lesson = Readonly<{
   room: string;
+  teacher: string;
   time: string;
   title: string;
 }>;
