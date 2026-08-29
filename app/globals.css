@@ -26,9 +26,15 @@ body {
   margin: 0;
 }
 
+html {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
 body {
   min-width: 320px;
   min-height: 100dvh;
+  overflow-x: hidden;
   overflow-y: auto;
   background: var(--tg-theme-secondary-bg-color);
   color: var(--tg-theme-text-color);
@@ -152,6 +158,7 @@ ul {
   width: min(100%, 560px);
   min-height: 100dvh;
   margin: 0 auto;
+  overflow-x: hidden;
   padding: 0 16px max(32px, env(safe-area-inset-bottom));
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -248,30 +255,17 @@ ul {
 }
 
 .horizontal-pager {
-  display: flex;
-  width: calc(100% + 16px);
-  margin-inline: -8px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  touch-action: pan-x pan-y;
-}
-
-.horizontal-pager::-webkit-scrollbar {
-  display: none;
+  width: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
 }
 
 .horizontal-pager-page {
-  flex: 0 0 100%;
-  min-width: 0;
-  padding-inline: 8px;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+  display: none;
 }
 
-.horizontal-pager[data-dragging] {
-  cursor: grabbing;
+.horizontal-pager-page:nth-child(2) {
+  display: block;
 }
 
 .calendar-day {
@@ -340,9 +334,14 @@ ul {
   gap: 10px;
 }
 
+.lessons-pager,
+.lessons-pager .horizontal-pager-page,
+.lessons-pager .lesson-status {
+  min-height: max(280px, calc(100dvh - 300px));
+}
+
 .lesson-status {
   display: grid;
-  min-height: 144px;
   margin: 0;
   place-items: center;
   color: var(--tg-theme-subtitle-text-color);

@@ -11,6 +11,7 @@ import {
   type KeyboardEvent,
   type PointerEvent,
   type ReactNode,
+  type TouchEvent,
   type WheelEvent,
 } from "react";
 import type { Lesson } from "@/app/_data/schedule";
@@ -22,7 +23,7 @@ import { impactOccurred } from "@/app/_lib/telegram-web-app";
 
 const DAYS_IN_WEEK = 7;
 const DAY_SCROLL_END_DELAY = 45;
-const MOUSE_DRAG_THRESHOLD = 8;
+const POINTER_DRAG_THRESHOLD = 8;
 const SCROLL_END_DELAY = 120;
 const WHEEL_SCROLL_MULTIPLIER = 0.45;
 
@@ -38,6 +39,7 @@ const shortWeekdayFormatter = new Intl.DateTimeFormat("ru-RU", {
 });
 
 type SwipeDirection = -1 | 1;
+type SwipeAxis = "horizontal" | "vertical";
 
 type ScheduleState = Readonly<{
   selectedDate: Date;
@@ -178,12 +180,23 @@ function HorizontalPager({
 }: HorizontalPagerProps) {
   const pagerRef = useRef<HTMLDivElement>(null);
   const scrollEndTimeout = useRef<number | undefined>(undefined);
-  const pointerStart = useRef<{ pointerId: number; scrollLeft: number; x: number } | null>(
-    null,
-  );
+  const pointerStart = useRef<{
+    pointerId: number;
+    scrollLeft: number;
+    x: number;
+    y: number;
+  } | null>(null);
+  const touchStart = useRef<{
+    identifier: number;
+    scrollLeft: number;
+    x: number;
+    y: number;
+  } | null>(null);
+  const touchAxis = useRef<SwipeAxis | undefined>(undefined);
   const hasDragged = useRef(false);
   const shouldIgnoreClick = useRef(false);
   const isPageChangePending = useRef(false);
+  const isTouching = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const clearScrollEndTimeout = useCallback(() => {
@@ -229,7 +242,11 @@ function HorizontalPager({
   const settlePage = () => {
     const pager = pagerRef.current;
 
-    if (!pager || isPageChangePending.current) {
+    if (
+      !pager ||
+      pager.scrollWidth <= pager.clientWidth ||
+      isPageChangePending.current
+    ) {
       return;
     }
 
@@ -263,8 +280,118 @@ function HorizontalPager({
       return;
     }
 
+    if (isTouching.current) {
+      clearScrollEndTimeout();
+      return;
+    }
+
     clearScrollEndTimeout();
     scrollEndTimeout.current = window.setTimeout(settlePage, scrollEndDelay);
+  };
+
+  const changePageFromGesture = (
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+  ) => {
+    const distanceX = endX - startX;
+    const distanceY = endY - startY;
+
+    if (
+      Math.abs(distanceX) < 42 ||
+      Math.abs(distanceX) <= Math.abs(distanceY) ||
+      isPageChangePending.current
+    ) {
+      return;
+    }
+
+    isPageChangePending.current = true;
+    shouldIgnoreClick.current = true;
+    window.setTimeout(() => {
+      shouldIgnoreClick.current = false;
+    }, 400);
+    onPageChange(distanceX < 0 ? 1 : -1);
+    deferPageChangeLockRelease();
+  };
+
+  const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length !== 1) {
+      return;
+    }
+
+    const touch = event.touches[0];
+
+    touchStart.current = {
+      identifier: touch.identifier,
+      scrollLeft: event.currentTarget.scrollLeft,
+      x: touch.clientX,
+      y: touch.clientY,
+    };
+    touchAxis.current = undefined;
+    isTouching.current = true;
+  };
+
+  const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
+    const start = touchStart.current;
+
+    if (!start) {
+      return;
+    }
+
+    const touch = Array.from(event.touches).find(
+      ({ identifier }) => identifier === start.identifier,
+    );
+
+    if (!touch) {
+      return;
+    }
+
+    const distanceX = touch.clientX - start.x;
+    const distanceY = touch.clientY - start.y;
+
+    if (!touchAxis.current) {
+      if (
+        Math.max(Math.abs(distanceX), Math.abs(distanceY)) <
+        POINTER_DRAG_THRESHOLD
+      ) {
+        return;
+      }
+
+      touchAxis.current =
+        Math.abs(distanceX) > Math.abs(distanceY) ? "horizontal" : "vertical";
+    }
+
+    if (touchAxis.current === "horizontal") {
+      event.currentTarget.scrollLeft = start.scrollLeft - distanceX;
+    }
+  };
+
+  const finishTouch = (event: TouchEvent<HTMLDivElement>) => {
+    const start = touchStart.current;
+
+    if (!start) {
+      return;
+    }
+
+    const touch = Array.from(event.changedTouches).find(
+      ({ identifier }) => identifier === start.identifier,
+    );
+
+    if (!touch) {
+      return;
+    }
+
+    touchStart.current = null;
+    touchAxis.current = undefined;
+    isTouching.current = false;
+    clearScrollEndTimeout();
+    changePageFromGesture(
+      start.x,
+      start.y,
+      touch.clientX,
+      touch.clientY,
+    );
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -280,6 +407,7 @@ function HorizontalPager({
       pointerId: event.pointerId,
       scrollLeft: event.currentTarget.scrollLeft,
       x: event.clientX,
+      y: event.clientY,
     };
     hasDragged.current = false;
   };
@@ -291,9 +419,19 @@ function HorizontalPager({
       return;
     }
 
-    const distance = event.clientX - start.x;
+    const distanceX = event.clientX - start.x;
+    const distanceY = event.clientY - start.y;
 
-    if (Math.abs(distance) > MOUSE_DRAG_THRESHOLD) {
+    if (
+      !hasDragged.current &&
+      Math.abs(distanceY) > POINTER_DRAG_THRESHOLD &&
+      Math.abs(distanceY) > Math.abs(distanceX)
+    ) {
+      pointerStart.current = null;
+      return;
+    }
+
+    if (Math.abs(distanceX) > POINTER_DRAG_THRESHOLD) {
       if (!hasDragged.current) {
         event.currentTarget.setPointerCapture(event.pointerId);
       }
@@ -307,7 +445,7 @@ function HorizontalPager({
       return;
     }
 
-    event.currentTarget.scrollLeft = start.scrollLeft - distance;
+    event.currentTarget.scrollLeft = start.scrollLeft - distanceX;
   };
 
   const finishPointerDrag = (event: PointerEvent<HTMLDivElement>) => {
@@ -321,10 +459,12 @@ function HorizontalPager({
     setIsDragging(false);
 
     if (hasDragged.current) {
-      shouldIgnoreClick.current = true;
-      window.setTimeout(() => {
-        shouldIgnoreClick.current = false;
-      }, 0);
+      changePageFromGesture(
+        start.x,
+        start.y,
+        event.clientX,
+        event.clientY,
+      );
     }
   };
 
@@ -334,12 +474,28 @@ function HorizontalPager({
   };
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
-    if (!event.shiftKey || event.deltaY === 0) {
+    const horizontalDelta = event.shiftKey
+      ? event.deltaY * WHEEL_SCROLL_MULTIPLIER
+      : event.deltaX;
+    const verticalDelta = event.shiftKey ? 0 : event.deltaY;
+
+    if (horizontalDelta === 0) {
       return;
     }
 
     event.preventDefault();
-    event.currentTarget.scrollLeft += event.deltaY * WHEEL_SCROLL_MULTIPLIER;
+
+    if (Math.abs(horizontalDelta) > Math.abs(verticalDelta)) {
+      if (!isPageChangePending.current) {
+        isPageChangePending.current = true;
+        onPageChange(horizontalDelta > 0 ? 1 : -1);
+        deferPageChangeLockRelease();
+      }
+
+      return;
+    }
+
+    window.scrollBy({ behavior: "auto", top: verticalDelta });
   };
 
   return (
@@ -360,6 +516,10 @@ function HorizontalPager({
       onPointerMove={handlePointerMove}
       onPointerUp={finishPointerDrag}
       onScroll={handleScroll}
+      onTouchCancel={finishTouch}
+      onTouchEnd={finishTouch}
+      onTouchMove={handleTouchMove}
+      onTouchStart={handleTouchStart}
       onWheel={handleWheel}
       ref={pagerRef}
       role="region"
