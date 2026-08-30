@@ -9,7 +9,7 @@ export async function GET() {
   let groupsUrl: URL | null;
 
   try {
-    groupsUrl = createScheduleApiUrl("schedule/groups/");
+    groupsUrl = createScheduleApiUrl("schedule/groups");
   } catch {
     return Response.json(
       { message: "Некорректно задан адрес API расписания." },
