@@ -1,5 +1,6 @@
 import type { Group, Lesson } from "@/app/_data/schedule";
-import { withAppBasePath } from "@/app/_config/app";
+
+const SCHEDULE_API_BASE_PATH = "/schedule";
 
 type ScheduleLesson = Readonly<{
   end_time: string;
@@ -54,7 +55,7 @@ export function formatScheduleDay(date: Date) {
 }
 
 export async function getAvailableGroups(signal: AbortSignal) {
-  const response = await fetch(withAppBasePath("/api/schedule/groups/"), {
+  const response = await fetch(`${SCHEDULE_API_BASE_PATH}/groups/`, {
     cache: "no-store",
     signal,
   });
@@ -78,7 +79,7 @@ export async function getScheduleForDay(
   signal: AbortSignal,
 ) {
   const response = await fetch(
-    `${withAppBasePath(`/api/schedule/${groupId}`)}?${new URLSearchParams({ day })}`,
+    `${SCHEDULE_API_BASE_PATH}/${groupId}?${new URLSearchParams({ day })}`,
     {
       cache: "no-store",
       signal,

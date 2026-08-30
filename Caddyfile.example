@@ -1,0 +1,22 @@
+# Replace example.com with your real domain.
+# If Caddy runs on the host instead of Docker, replace schedule-app:3000
+# with 127.0.0.1:3000 or the APP_PORT value from docker-compose.yml.
+
+example.com {
+  encode zstd gzip
+
+  @schedule_api {
+    path /schedule /schedule/*
+  }
+
+  handle @schedule_api {
+    # Keep the /schedule prefix. The schedule API expects routes like:
+    # /schedule/groups/
+    # /schedule/{group_id}?day=DD.MM.YYYY
+    reverse_proxy schedule-api:8000
+  }
+
+  handle {
+    reverse_proxy schedule-app:3000
+  }
+}

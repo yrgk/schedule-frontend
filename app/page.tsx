@@ -1,5 +1,5 @@
-import { TelegramApp } from "./_components/telegram-app";
+import { WebApp } from "./_components/web-app";
 
 export default function HomePage() {
-  return <TelegramApp />;
+  return <WebApp />;
 }
