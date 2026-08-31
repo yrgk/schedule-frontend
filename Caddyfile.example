@@ -5,8 +5,15 @@
 example.com {
   encode zstd gzip
 
-  handle /api/* {
-    reverse_proxy backend:8000
+  @schedule_api {
+    path /schedule /schedule/*
+  }
+
+  handle @schedule_api {
+    # Keep the /schedule prefix. The schedule API expects routes like:
+    # /schedule/groups/
+    # /schedule/{group_id}?day=DD.MM.YYYY
+    reverse_proxy schedule-api:8000
   }
 
   handle {

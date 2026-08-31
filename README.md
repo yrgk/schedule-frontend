@@ -21,7 +21,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 ## Размещение на домене с API
 
 Приложение доступно по корневому адресу `https://ваш-домен/`.
-API должен оставаться на том же домене по пути `/api/*`.
+API расписания должен оставаться на том же домене по пути `/schedule/*`.
 
 В Caddy сначала направьте API-префикс в сервис расписания, а остальные запросы — в Next.js. Готовый пример есть в `Caddyfile.example`:
 
@@ -33,8 +33,15 @@ API должен оставаться на том же домене по пут�
 example.com {
   encode zstd gzip
 
-  handle /api/* {
-    reverse_proxy backend:8000
+  @schedule_api {
+    path /schedule /schedule/*
+  }
+
+  handle @schedule_api {
+    # Keep the /schedule prefix. The schedule API expects routes like:
+    # /schedule/groups/
+    # /schedule/{group_id}?day=DD.MM.YYYY
+    reverse_proxy schedule-api:8000
   }
 
   handle {
@@ -43,7 +50,7 @@ example.com {
 }
 ```
 
-Приложение запрашивает список групп через `GET /api/schedule/groups`, а расписание — через `GET /api/schedule/{group_id}?day=ДД.ММ.ГГГГ`. Например, для группы с ID `1` и 28 июня 2026 года будет вызван `GET https://ваш-домен/api/schedule/1?day=28.06.2026`.
+Приложение запрашивает список групп через `GET /schedule/groups/`, а расписание — через `GET /schedule/{group_id}?day=ДД.ММ.ГГГГ`. Например, для группы с ID `1` и 28 июня 2026 года будет вызван `GET https://ваш-домен/schedule/1?day=28.06.2026`.
 
 Список групп должен возвращаться в формате:
 
