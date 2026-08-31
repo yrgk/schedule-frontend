@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      SCHEDULE_API_BASE_URL: ${SCHEDULE_API_BASE_URL:-}
     networks:
       - default
       - caddy

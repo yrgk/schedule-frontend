@@ -1,15 +1,20 @@
-:root {
-  --app-background: #e9eef5;
-  --app-surface: #ffffff;
-  --app-surface-muted: #f4f7fb;
-  --app-text: #152033;
-  --app-text-muted: #6f7c90;
-  --app-text-subtle: #8c97a8;
-  --app-accent: #1e88ff;
-  --app-accent-text: #ffffff;
-  --app-danger: #e14b4b;
-  --app-border: #dfe6ef;
-}
+/* :root {
+  --tg-theme-bg-color: #f4f7fb;
+  --tg-theme-text-color: #152033;
+  --tg-theme-hint-color: #8c97a8;
+  --tg-theme-link-color: #1877f2;
+  --tg-theme-button-color: #1e88ff;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #e9eef5;
+  --tg-theme-header-bg-color: #ffffff;
+  --tg-theme-bottom-bar-bg-color: #ffffff;
+  --tg-theme-accent-text-color: #1e88ff;
+  --tg-theme-section-bg-color: #ffffff;
+  --tg-theme-section-header-text-color: #1e88ff;
+  --tg-theme-section-separator-color: #dfe6ef;
+  --tg-theme-subtitle-text-color: #6f7c90;
+  --tg-theme-destructive-text-color: #e14b4b;
+} */
 
 * {
   box-sizing: border-box;
@@ -31,19 +36,20 @@ body {
   min-height: 100dvh;
   overflow-x: hidden;
   overflow-y: auto;
-  background: var(--app-background);
-  color: var(--app-text);
+  background: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
 
-.app-loading {
+.app-load-error {
   display: grid;
   min-height: 100dvh;
   padding: 24px;
   place-items: center;
+  color: var(--tg-theme-destructive-text-color);
   font-size: 16px;
   line-height: 1.45;
   text-align: center;
@@ -107,7 +113,7 @@ ul {
 
 .group-selector-details > p {
   margin: 8px 0 20px;
-  color: var(--app-text-muted);
+  color: var(--tg-theme-subtitle-text-color);
   font-size: 15px;
   line-height: 1.4;
 }
@@ -122,8 +128,8 @@ ul {
   min-height: 52px;
   border: 0;
   border-radius: 14px;
-  background: var(--app-accent);
-  color: var(--app-accent-text);
+  background: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
   cursor: pointer;
   font: inherit;
   font-size: 17px;
@@ -131,7 +137,7 @@ ul {
 }
 
 .group-list button:focus-visible {
-  outline: 2px solid var(--app-accent);
+  outline: 2px solid var(--tg-theme-link-color);
   outline-offset: 3px;
 }
 
@@ -145,7 +151,7 @@ ul {
 }
 
 .group-selector-message.is-error {
-  color: var(--app-danger) !important;
+  color: var(--tg-theme-destructive-text-color) !important;
 }
 
 .schedule-page {
@@ -164,8 +170,8 @@ ul {
   overflow: hidden;
   margin: 0 -16px;
   padding: 0 16px 20px;
-  background: var(--app-surface);
-  border-bottom: 1px solid var(--app-border);
+  background: var(--tg-theme-header-bg-color);
+  border-bottom: 1px solid var(--tg-theme-section-separator-color);
 }
 
 .calendar-header {
@@ -190,7 +196,7 @@ ul {
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: var(--app-accent);
+  color: var(--tg-theme-link-color);
   cursor: pointer;
 }
 
@@ -207,7 +213,7 @@ ul {
 
 .calendar-navigation-button:focus-visible,
 .group-name:focus-visible {
-  outline: 2px solid var(--app-accent);
+  outline: 2px solid var(--tg-theme-link-color);
   outline-offset: 2px;
 }
 
@@ -223,7 +229,7 @@ ul {
   border: 0;
   border-radius: 10px;
   background: transparent;
-  color: var(--app-text-muted);
+  color: var(--tg-theme-subtitle-text-color);
   cursor: pointer;
   font: inherit;
   font-size: 17px;
@@ -273,30 +279,30 @@ ul {
   border: 0;
   border-radius: 14px;
   background: none;
-  color: var(--app-text-subtle);
+  color: var(--tg-theme-hint-color);
   cursor: pointer;
   font: inherit;
   font-size: 13px;
 }
 
 .calendar-day:focus-visible {
-  outline: 2px solid var(--app-accent);
+  outline: 2px solid var(--tg-theme-link-color);
   outline-offset: 2px;
 }
 
 .calendar-day span {
-  color: var(--app-text);
+  color: var(--tg-theme-text-color);
   font-size: 17px;
   font-variant-numeric: tabular-nums;
 }
 
 .calendar-day.is-selected {
-  background: var(--app-accent);
-  color: var(--app-accent-text);
+  background: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
 }
 
 .calendar-day.is-selected span {
-  color: var(--app-accent-text);
+  color: var(--tg-theme-button-text-color);
 }
 
 .lessons {
@@ -319,7 +325,7 @@ ul {
 }
 
 .section-heading span {
-  color: var(--app-text-muted);
+  color: var(--tg-theme-subtitle-text-color);
   font-size: 14px;
 }
 
@@ -338,7 +344,7 @@ ul {
   display: grid;
   margin: 0;
   place-items: center;
-  color: var(--app-text-muted);
+  color: var(--tg-theme-subtitle-text-color);
   font-size: 15px;
   text-align: center;
 }
@@ -346,8 +352,8 @@ ul {
 .lesson-loading-spinner {
   width: 30px;
   height: 30px;
-  border: 3px solid var(--app-border);
-  border-top-color: var(--app-accent);
+  border: 3px solid var(--tg-theme-section-separator-color);
+  border-top-color: var(--tg-theme-button-color);
   border-radius: 50%;
   animation: lesson-loading-spin 0.8s linear infinite;
 }
@@ -363,7 +369,7 @@ ul {
   gap: 10px;
   padding: 18px 16px;
   border-radius: 16px;
-  background: var(--app-surface);
+  background: var(--tg-theme-section-bg-color);
 }
 
 .lesson-card-top {
@@ -371,7 +377,7 @@ ul {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  color: var(--app-text-subtle);
+  color: var(--tg-theme-hint-color);
   font-size: 14px;
 }
 
@@ -396,7 +402,7 @@ ul {
 
 .lesson-teacher {
   margin: 0;
-  color: var(--app-text-muted);
+  color: var(--tg-theme-subtitle-text-color);
   font-size: 15px;
   line-height: 1.4;
   overflow-wrap: anywhere;

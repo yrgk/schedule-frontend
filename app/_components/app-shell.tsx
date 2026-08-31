@@ -19,6 +19,7 @@ import {
   formatScheduleDay,
   getScheduleForDay,
 } from "@/app/_lib/schedule-api";
+import { impactOccurred } from "@/app/_lib/telegram-web-app";
 
 const DAYS_IN_WEEK = 7;
 const DAY_SCROLL_END_DELAY = 45;
@@ -611,6 +612,7 @@ export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
   };
 
   const changeWeek = (direction: SwipeDirection) => {
+    impactOccurred("light");
     dispatch({ type: "change-week", direction });
   };
 
@@ -627,6 +629,7 @@ export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
   };
 
   const handleDayClick = (date: Date) => {
+    impactOccurred("light");
     selectDate(date);
   };
 

@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Расписание университета",
-  description: "Веб-приложение с расписанием занятий",
+  description: "Расписание занятий в Telegram Mini App",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

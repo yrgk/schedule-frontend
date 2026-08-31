@@ -1,6 +1,7 @@
 "use client";
 
 import type { Group } from "@/app/_data/schedule";
+import { withAppBasePath } from "@/app/_config/app";
 import { TgsAnimation } from "@/app/_components/tgs-animation";
 
 type GroupSelectorProps = Readonly<{
@@ -24,7 +25,7 @@ export function GroupSelector({
         <TgsAnimation
           ariaLabel=""
           className="group-selector-animation"
-          src="/group-selector-duck.tgs"
+          src={withAppBasePath("/group-selector-duck.tgs")}
         />
         <div className="group-selector-details">
           <h1 id="group-selector-title">Выбери группу</h1>
