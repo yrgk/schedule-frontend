@@ -18,6 +18,14 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+Для локальной разработки укажите адрес бекенда в `.env`:
+
+```bash
+SCHEDULE_API_BASE_URL=https://dorogoy-dnevnik.duckdns.org
+```
+
+После изменения `.env` или `next.config.ts` перезапустите `npm run dev`. Локальный Next.js будет проксировать запросы `http://localhost:3000/api/*` в указанный бекенд, а браузер продолжит работать с теми же путями, что и в проде.
+
 ## Размещение на домене с API
 
 Приложение доступно по корневому адресу `https://ваш-домен/`.
