@@ -54,7 +54,7 @@ export function formatScheduleDay(date: Date) {
 }
 
 export async function getAvailableGroups(signal: AbortSignal) {
-  const response = await fetch(withAppBasePath("/api/schedule/groups/"), {
+  const response = await fetch(withAppBasePath("/api/schedule/groups"), {
     cache: "no-store",
     signal,
   });

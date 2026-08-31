@@ -27,7 +27,7 @@ export async function GET(
   let scheduleUrl: URL | null;
 
   try {
-    scheduleUrl = createScheduleApiUrl(`schedule/${groupId}`);
+    scheduleUrl = createScheduleApiUrl(`api/schedule/${groupId}`);
   } catch {
     return Response.json(
       { message: "Некорректно задан адрес API расписания." },

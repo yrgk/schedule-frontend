@@ -1,5 +1,5 @@
-export const APP_BASE_PATH = "/app";
+export const APP_BASE_PATH = "";
 
 export function withAppBasePath(path: `/${string}`) {
-  return `${APP_BASE_PATH}${path}`;
+  return path;
 }

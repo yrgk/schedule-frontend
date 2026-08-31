@@ -32,19 +32,19 @@ SCHEDULE_API_BASE_URL=https://api.example.com
 SCHEDULE_API_BASE_URL=https://api.example.com docker compose up --build
 ```
 
-## Размещение по пути `/app`
+## Размещение на корневом пути
 
-Приложение доступно по адресу `https://ваш-домен/app`. В Caddy передавайте этот путь в Next.js без удаления префикса:
+Telegram-приложение доступно по адресу `https://ваш-домен/`. На Vercel дополнительных настроек пути не требуется.
+
+Если запускаете через Caddy, передавайте корневой путь в Next.js:
 
 ```caddyfile
-handle /app* {
+handle {
   reverse_proxy 127.0.0.1:3000
 }
 ```
 
-Не используйте `handle_path`: он удалит `/app` из запроса, и Next.js не сможет сопоставить маршруты.
-
-Приложение запрашивает список групп через `GET /schedule/groups/`, а расписание — через `GET /schedule/{group_id}?day=ДД.ММ.ГГГГ`. Например, для группы с ID `1` и 28 июня 2026 года будет вызван `GET https://api.example.com/schedule/1?day=28.06.2026`.
+Приложение запрашивает список групп через `GET /api/schedule/groups`, а расписание — через `GET /api/schedule/{group_id}?day=ДД.ММ.ГГГГ`. Например, для группы с ID `1` и 28 июня 2026 года будет вызван `GET https://api.example.com/api/schedule/1?day=28.06.2026`.
 
 Список групп должен возвращаться в формате:
 
