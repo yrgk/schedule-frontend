@@ -8,6 +8,8 @@ type GroupSelectorProps = Readonly<{
   message?: string;
   messageTone?: "error" | "info";
   isSaving: boolean;
+  showHomework: boolean;
+  onShowHomeworkChange: (value: boolean) => void;
   onSelect: (group: Group) => void;
 }>;
 
@@ -16,6 +18,8 @@ export function GroupSelector({
   message,
   messageTone = "info",
   isSaving,
+  showHomework,
+  onShowHomeworkChange,
   onSelect,
 }: GroupSelectorProps) {
   return (
@@ -29,6 +33,14 @@ export function GroupSelector({
         <div className="group-selector-details">
           <h1 id="group-selector-title">Выбери группу</h1>
           <p>Расписание будет сохранено для выбранной группы</p>
+          <label className="homework-toggle">
+            <span>Отображать дз</span>
+            <input
+              checked={showHomework}
+              onChange={(event) => onShowHomeworkChange(event.currentTarget.checked)}
+              type="checkbox"
+            />
+          </label>
           <ul aria-label="Доступные группы" className="group-list">
             {groups.map((group) => (
               <li key={group.id}>

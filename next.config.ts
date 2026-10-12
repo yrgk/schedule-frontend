@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const scheduleApiBaseUrl = process.env.SCHEDULE_API_BASE_URL?.replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["127.0.0.1"],
   output: "standalone",
   async rewrites() {
     if (!scheduleApiBaseUrl) {

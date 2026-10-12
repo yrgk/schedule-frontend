@@ -23,6 +23,7 @@ export function WebApp() {
   const [groupsError, setGroupsError] = useState<string>();
   const [isReady, setIsReady] = useState(false);
   const [storageError, setStorageError] = useState<string>();
+  const [showHomework, setShowHomework] = useState(true);
 
   useEffect(() => {
     let isActive = true;
@@ -102,6 +103,8 @@ export function WebApp() {
       <GroupSelector
         groups={groups}
         isSaving={false}
+        showHomework={showHomework}
+        onShowHomeworkChange={setShowHomework}
         message={storageError ?? groupsError}
         messageTone="error"
         onSelect={handleGroupSelect}
@@ -114,6 +117,7 @@ export function WebApp() {
       <AppShell
         groupId={selectedGroup.id}
         groupName={selectedGroup.name}
+        showHomework={showHomework}
         onChangeGroup={handleChangeGroup}
       />
     );

@@ -1,4 +1,6 @@
 export type Lesson = Readonly<{
+  homework?: readonly string[];
+  lessonType?: string;
   room: string;
   teacher: string;
   time: string;
