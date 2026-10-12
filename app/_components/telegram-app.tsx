@@ -28,6 +28,7 @@ export function TelegramApp() {
   const [groupsError, setGroupsError] = useState<string>();
   const [isStorageChecked, setIsStorageChecked] = useState(false);
   const [isSavingGroup, setIsSavingGroup] = useState(false);
+  const [showHomework, setShowHomework] = useState(true);
   const [storageError, setStorageError] = useState<string>();
 
   const handleScriptReady = useCallback(() => {
@@ -127,6 +128,8 @@ export function TelegramApp() {
         <GroupSelector
           groups={groups}
           isSaving={isSavingGroup}
+          showHomework={showHomework}
+          onShowHomeworkChange={setShowHomework}
           message={storageError ?? groupsError}
           messageTone="error"
           onSelect={handleGroupSelect}
@@ -136,6 +139,7 @@ export function TelegramApp() {
         <AppShell
           groupId={selectedGroup.id}
           groupName={selectedGroup.name}
+          showHomework={showHomework}
           onChangeGroup={handleChangeGroup}
         />
       ) : null}

@@ -3,6 +3,8 @@ import { withAppBasePath } from "@/app/_config/app";
 
 type ScheduleLesson = Readonly<{
   end_time: string;
+  homework?: string[];
+  lesson_type?: string | null;
   location: string;
   location_short: string;
   start_time: string;
@@ -33,12 +35,16 @@ function isScheduleLesson(value: unknown): value is ScheduleLesson {
     typeof lesson.title === "string" &&
     typeof lesson.teacher_name === "string" &&
     typeof lesson.location_short === "string" &&
-    typeof lesson.location === "string"
+    typeof lesson.location === "string" &&
+    (lesson.lesson_type == null || typeof lesson.lesson_type === "string") &&
+    (lesson.homework === undefined || (Array.isArray(lesson.homework) && lesson.homework.every((item) => typeof item === "string")))
   );
 }
 
 function toLesson(lesson: ScheduleLesson): Lesson {
   return {
+    homework: lesson.homework,
+    lessonType: lesson.lesson_type ?? undefined,
     room: lesson.location_short,
     teacher: lesson.teacher_name,
     time: `${lesson.start_time} — ${lesson.end_time}`,
@@ -76,9 +82,12 @@ export async function getScheduleForDay(
   groupId: number,
   day: string,
   signal: AbortSignal,
+  withHomework: boolean,
 ) {
+  const params = new URLSearchParams({ day });
+  if (withHomework) params.set("with_hw", "true");
   const response = await fetch(
-    `${withAppBasePath(`/api/schedule/${groupId}`)}?${new URLSearchParams({ day })}`,
+    `${withAppBasePath(`/api/schedule/${groupId}`)}?${params}`,
     {
       cache: "no-store",
       signal,

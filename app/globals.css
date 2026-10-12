@@ -118,6 +118,62 @@ ul {
   line-height: 1.4;
 }
 
+.homework-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  margin: 0 0 18px;
+  padding-inline: 24px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--tg-theme-section-separator-color);
+  border-radius: 14px;
+  background: var(--tg-theme-section-bg-color);
+  color: var(--tg-theme-text-color);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.homework-toggle input {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  margin: 0;
+  flex: 0 0 auto;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tg-theme-section-separator-color);
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+
+.homework-toggle input::before {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--tg-theme-bg-color);
+  content: "";
+  transition: transform 160ms ease;
+}
+
+.homework-toggle input:checked {
+  background: var(--tg-theme-button-color);
+}
+
+.homework-toggle input:checked::before {
+  transform: translateX(20px);
+}
+
+.homework-toggle input:focus-visible {
+  outline: 2px solid var(--tg-theme-link-color);
+  outline-offset: 3px;
+}
+
 .group-list {
   display: grid;
   gap: 10px;
@@ -177,6 +233,7 @@ ul {
 .calendar-header {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr) 44px;
+  padding-top: 16px;
   align-items: center;
   text-align: center;
 }
@@ -366,10 +423,76 @@ ul {
 
 .lesson-card {
   display: grid;
-  gap: 10px;
-  padding: 18px 16px;
+  overflow: hidden;
   border-radius: 16px;
   background: var(--tg-theme-section-bg-color);
+}
+
+.lesson-card-trigger {
+  display: grid;
+  width: 100%;
+  gap: 10px;
+  padding: 18px 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.lesson-card-trigger:disabled {
+  cursor: default;
+}
+
+.lesson-card-trigger:not(:disabled):focus-visible {
+  outline: 2px solid var(--tg-theme-link-color);
+  outline-offset: -3px;
+}
+
+.lesson-break {
+  margin: 2px 0 12px;
+  color: var(--tg-theme-hint-color);
+  font-size: 14px;
+  text-align: center;
+}
+
+.lesson-homework {
+  display: grid;
+  gap: 6px;
+  margin: 0 16px 24px;
+  padding: 10px 0 0 18px;
+  border-top: 1px solid var(--tg-theme-section-separator-color);
+  color: var(--tg-theme-subtitle-text-color);
+  font-size: 14px;
+  line-height: 1.4;
+  list-style: disc;
+}
+
+.lesson-homework li::marker {
+  color: var(--tg-theme-link-color);
+}
+
+.lesson-homework-toggle {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 28px;
+  padding: 0 2px;
+  align-items: center;
+  gap: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tg-theme-link-color);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+}
+
+.lesson-homework-toggle:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid var(--tg-theme-link-color);
+  outline-offset: 2px;
 }
 
 .lesson-card-top {
@@ -388,9 +511,45 @@ ul {
   line-height: 1.45;
 }
 
-.lesson-card h3 {
-  margin: 0;
+.lesson-card-location {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.lesson-type-tag {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--lesson-type-color) 12%, transparent);
+  color: var(--lesson-type-color);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.lesson-type-tag.is-lecture {
+  --lesson-type-color: #1676c5;
+}
+
+.lesson-type-tag.is-practice {
+  --lesson-type-color: #238447;
+}
+
+.lesson-type-tag.is-laboratory {
+  --lesson-type-color: #8243b8;
+}
+
+.lesson-type-tag.is-assessment {
+  --lesson-type-color: #c65a25;
+}
+
+.lesson-title {
+  display: block;
   font-size: 18px;
+  font-weight: 700;
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -401,7 +560,7 @@ ul {
 }
 
 .lesson-teacher {
-  margin: 0;
+  display: block;
   color: var(--tg-theme-subtitle-text-color);
   font-size: 15px;
   line-height: 1.4;
@@ -415,6 +574,11 @@ ul {
 
   .lesson-loading-spinner {
     animation: none;
+  }
+
+  .homework-toggle input,
+  .homework-toggle input::before {
+    transition: none;
   }
 }
 

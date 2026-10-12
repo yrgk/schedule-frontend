@@ -11,7 +11,9 @@ export async function GET(
   context: RouteContext<"/api/schedule/[groupId]">,
 ) {
   const { groupId } = await context.params;
-  const day = new URL(request.url).searchParams.get("day");
+  const requestUrl = new URL(request.url);
+  const day = requestUrl.searchParams.get("day");
+  const withHomework = requestUrl.searchParams.get("with_hw") === "true";
 
   if (!/^\d+$/.test(groupId)) {
     return Response.json({ message: "Некорректная группа." }, { status: 400 });
@@ -43,6 +45,7 @@ export async function GET(
   }
 
   scheduleUrl.searchParams.set("day", day);
+  if (withHomework) scheduleUrl.searchParams.set("with_hw", "true");
 
   return proxyScheduleRequest(scheduleUrl);
 }

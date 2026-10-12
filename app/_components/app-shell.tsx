@@ -28,7 +28,6 @@ const SCROLL_END_DELAY = 120;
 const WHEEL_GESTURE_END_DELAY = 100;
 const WHEEL_PAGE_CHANGE_THRESHOLD = 24;
 const WHEEL_SCROLL_MULTIPLIER = 0.45;
-
 const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
   day: "numeric",
   month: "long",
@@ -88,6 +87,77 @@ function isSameDay(firstDate: Date, secondDate: Date) {
 
 function capitalize(value: string) {
   return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
+function getHomeworkCountLabel(count: number) {
+  const lastTwoDigits = count % 100;
+  const unit =
+    lastTwoDigits >= 11 && lastTwoDigits <= 14
+      ? "заданий"
+      : count % 10 === 1
+        ? "задание"
+        : count % 10 >= 2 && count % 10 <= 4
+          ? "задания"
+          : "заданий";
+
+  return `${count} ${unit}`;
+}
+
+function getLessonTypeTag(lessonType: string | undefined) {
+  const label = lessonType?.trim();
+
+  if (!label) {
+    return undefined;
+  }
+
+  const normalizedLabel = label.toLocaleLowerCase("ru-RU");
+  const tone = normalizedLabel.includes("лекц")
+    ? "lecture"
+    : normalizedLabel.includes("практ") || normalizedLabel.includes("семинар")
+      ? "practice"
+      : normalizedLabel.includes("лаборатор")
+        ? "laboratory"
+        : normalizedLabel.includes("контрол") || normalizedLabel.includes("зач") || normalizedLabel.includes("экзам")
+          ? "assessment"
+          : "lecture";
+
+  return { label, tone };
+}
+
+function getBreakLabel(previousLesson: Lesson | undefined, lesson: Lesson) {
+  if (!previousLesson) return undefined;
+  const previousEndMatch = previousLesson.time.match(/—\s*(\d{2}):(\d{2})$/);
+  const currentStartMatch = lesson.time.match(/^(\d{2}):(\d{2})/);
+  const previousEnd = previousEndMatch
+    ? Number(previousEndMatch[1]) * 60 + Number(previousEndMatch[2])
+    : Number.NaN;
+  const currentStart = currentStartMatch
+    ? Number(currentStartMatch[1]) * 60 + Number(currentStartMatch[2])
+    : Number.NaN;
+  if (
+    !Number.isFinite(previousEnd) ||
+    !Number.isFinite(currentStart) ||
+    currentStart <= previousEnd
+  ) {
+    return undefined;
+  }
+
+  const duration = currentStart - previousEnd;
+  const hours = Math.floor(duration / 60);
+  const minutes = duration % 60;
+  const lastTwoDigits = hours % 100;
+  const hourUnit =
+    lastTwoDigits >= 11 && lastTwoDigits <= 14
+      ? "часов"
+      : hours % 10 === 1
+        ? "час"
+        : hours % 10 >= 2 && hours % 10 <= 4
+          ? "часа"
+          : "часов";
+
+  return hours
+    ? `Перерыв ${hours} ${hourUnit} ${minutes} минут`
+    : `Перерыв ${minutes} минут`;
 }
 
 function getWeekDays(firstDay: Date) {
@@ -161,6 +231,7 @@ type AppShellProps = Readonly<{
   groupId: number;
   groupName: string;
   onChangeGroup: () => void;
+  showHomework: boolean;
 }>;
 
 type HorizontalPagerProps = Readonly<{
@@ -555,7 +626,7 @@ function HorizontalPager({
   );
 }
 
-export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
+export function AppShell({ groupId, groupName, onChangeGroup, showHomework }: AppShellProps) {
   const [schedule, dispatch] = useReducer(
     scheduleReducer,
     undefined,
@@ -563,6 +634,7 @@ export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
   );
   const selectedScheduleDay = formatScheduleDay(schedule.selectedDate);
   const [scheduleData, setScheduleData] = useState<ScheduleData>();
+  const [expandedHomework, setExpandedHomework] = useState<string | null>(null);
   const calendarPages = useMemo(
     () =>
       [-1, 0, 1].map((offset) =>
@@ -575,7 +647,7 @@ export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
   useEffect(() => {
     const controller = new AbortController();
 
-    void getScheduleForDay(groupId, selectedScheduleDay, controller.signal)
+    void getScheduleForDay(groupId, selectedScheduleDay, controller.signal, showHomework)
       .then((dayLessons) => {
         if (controller.signal.aborted) {
           return;
@@ -601,7 +673,7 @@ export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
     return () => {
       controller.abort();
     };
-  }, [groupId, selectedScheduleDay]);
+  }, [groupId, selectedScheduleDay, showHomework]);
 
   const selectDate = (date: Date) => {
     dispatch({ type: "select-date", date });
@@ -751,32 +823,68 @@ export function AppShell({ groupId, groupName, onChangeGroup }: AppShellProps) {
                   </div>
                 ) : null}
                 {isLoadedDay && scheduleData.status === "error" ? (
-                  <p className="lesson-status">Занятий нет.</p>
+                  <p className="lesson-status">Занятий нет</p>
                 ) : null}
                 {isLoadedDay && scheduleData.status === "success" ? (
                   scheduleData.lessons.length > 0 ? (
                     <ol className="lesson-list">
-                      {scheduleData.lessons.map((lesson) => (
-                        <li
-                          key={`${lesson.time}-${lesson.room}-${lesson.title}-${lesson.teacher}`}
-                        >
-                          <article className="lesson-card">
-                            <div className="lesson-card-top">
-                              <time>{lesson.time}</time>
-                              <span>{lesson.room}</span>
-                            </div>
-                            <div className="lesson-card-details">
-                              <h3>{lesson.title}</h3>
-                              {lesson.teacher ? (
-                                <p className="lesson-teacher">{lesson.teacher}</p>
+                      {scheduleData.lessons.map((lesson, index) => {
+                        const breakLabel = getBreakLabel(scheduleData.lessons[index - 1], lesson);
+                        const lessonKey = `${lesson.time}-${lesson.room}-${lesson.title}-${lesson.teacher}`;
+                        const lessonType = getLessonTypeTag(lesson.lessonType);
+                        const homework = lesson.homework ?? [];
+                        const homeworkIsExpanded = expandedHomework === lessonKey;
+                        return (
+                          <li key={lessonKey}>
+                            {breakLabel ? <p className="lesson-break">{breakLabel}</p> : null}
+                            <article className="lesson-card">
+                              <button
+                                aria-expanded={showHomework ? homeworkIsExpanded : undefined}
+                                className="lesson-card-trigger"
+                                disabled={!showHomework || homework.length === 0}
+                                onClick={() => {
+                                  if (showHomework) {
+                                    impactOccurred("light");
+                                    setExpandedHomework(homeworkIsExpanded ? null : lessonKey);
+                                  }
+                                }}
+                                type="button"
+                              >
+                                <span className="lesson-card-top">
+                                  <time>{lesson.time}</time>
+                                  <span className="lesson-card-location">
+                                    {lessonType ? (
+                                      <span className={`lesson-type-tag is-${lessonType.tone}`}>
+                                        {lessonType.label}
+                                      </span>
+                                    ) : null}
+                                    <span>{lesson.room}</span>
+                                  </span>
+                                </span>
+                                <span className="lesson-card-details">
+                                  <span className="lesson-title">{lesson.title}</span>
+                                  {lesson.teacher ? (
+                                    <span className="lesson-teacher">{lesson.teacher}</span>
+                                  ) : null}
+                                  {showHomework && homework.length > 0 ? (
+                                    <span className="lesson-homework-toggle">
+                                      <span>{getHomeworkCountLabel(homework.length)}</span>
+                                    </span>
+                                  ) : null}
+                                </span>
+                              </button>
+                              {showHomework && homework.length > 0 && homeworkIsExpanded ? (
+                                <ul className="lesson-homework">
+                                  {homework.map((item, itemIndex) => <li key={`${item}-${itemIndex}`}>{item}</li>)}
+                                </ul>
                               ) : null}
-                            </div>
-                          </article>
-                        </li>
-                      ))}
+                            </article>
+                          </li>
+                        );
+                      })}
                     </ol>
                   ) : (
-                    <p className="lesson-status">Занятий нет.</p>
+                    <p className="lesson-status">Занятий нет</p>
                   )
                 ) : null}
               </div>
