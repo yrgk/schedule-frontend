@@ -878,7 +878,7 @@ export function AppShell({ groupId, groupName, onChangeGroup, showHomework }: Ap
                               </button>
                               {showHomework && homework.length > 0 && homeworkIsExpanded ? (
                                 <ul className="lesson-homework">
-                                  {homework.map((item, itemIndex) => <li key={`${item}-${itemIndex}`}>{item}</li>)}
+                                  {homework.map((item) => <li key={item.id}>{item.text}</li>)}
                                 </ul>
                               ) : null}
                             </article>

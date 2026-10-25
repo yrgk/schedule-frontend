@@ -1,10 +1,10 @@
-import type { Group, Lesson } from "@/app/_data/schedule";
+import type { Group, Homework, Lesson } from "@/app/_data/schedule";
 
 const SCHEDULE_API_BASE_PATH = "/api/schedule";
 
 type ScheduleLesson = Readonly<{
   end_time: string;
-  homework?: string[];
+  homework?: Homework[];
   lesson_type?: string | null;
   location: string;
   location_short: string;
@@ -40,7 +40,13 @@ function isScheduleLesson(value: unknown): value is ScheduleLesson {
     (lesson.lesson_type == null || typeof lesson.lesson_type === "string") &&
     (lesson.homework === undefined ||
       (Array.isArray(lesson.homework) &&
-        lesson.homework.every((item) => typeof item === "string")))
+        lesson.homework.every(
+          (item) =>
+            !!item &&
+            typeof item === "object" &&
+            typeof item.id === "number" &&
+            typeof item.text === "string",
+        )))
   );
 }
 
