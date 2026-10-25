@@ -23,6 +23,20 @@ function isGroup(value: unknown): value is Group {
   return typeof group.id === "number" && typeof group.name === "string";
 }
 
+async function readJson(response: Response): Promise<unknown> {
+  const body = await response.text();
+
+  if (!body) {
+    throw new Error("Сервис вернул пустой ответ.");
+  }
+
+  try {
+    return JSON.parse(body) as unknown;
+  } catch {
+    throw new Error("Сервис вернул ответ в неизвестном формате.");
+  }
+}
+
 function isScheduleLesson(value: unknown): value is ScheduleLesson {
   if (!value || typeof value !== "object") {
     return false;
@@ -78,7 +92,7 @@ export async function getAvailableGroups(signal: AbortSignal) {
     throw new Error("Не удалось загрузить список групп.");
   }
 
-  const data: unknown = await response.json();
+  const data = await readJson(response);
 
   if (!Array.isArray(data) || !data.every(isGroup)) {
     throw new Error("Сервис вернул список групп в неизвестном формате.");
@@ -107,7 +121,7 @@ export async function getScheduleForDay(
     throw new Error("Не удалось загрузить расписание.");
   }
 
-  const data: unknown = await response.json();
+  const data = await readJson(response);
 
   if (!Array.isArray(data) || !data.every(isScheduleLesson)) {
     throw new Error("Сервис вернул расписание в неизвестном формате.");
