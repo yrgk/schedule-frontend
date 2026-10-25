@@ -1,5 +1,10 @@
+export type Homework = Readonly<{
+  id: number;
+  text: string;
+}>;
+
 export type Lesson = Readonly<{
-  homework?: readonly string[];
+  homework?: readonly Homework[];
   lessonType?: string;
   room: string;
   teacher: string;
