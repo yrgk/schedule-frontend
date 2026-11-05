@@ -4,6 +4,8 @@ export type Homework = Readonly<{
 }>;
 
 export type Lesson = Readonly<{
+  id: number;
+  lessonId: number;
   homework?: readonly Homework[];
   lessonType?: string;
   room: string;
