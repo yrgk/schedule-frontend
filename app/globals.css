@@ -389,6 +389,7 @@ ul {
 
 .lessons-pager,
 .lessons-pager .horizontal-pager-page,
+.lessons-pager .lesson-cancellation,
 .lessons-pager .lesson-status {
   min-height: max(280px, calc(100dvh - 300px));
 }
@@ -400,6 +401,62 @@ ul {
   color: var(--app-text-muted);
   font-size: 15px;
   text-align: center;
+}
+
+.lesson-banner {
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.lesson-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 12px;
+}
+
+.lesson-banner-icon {
+  flex: 0 0 24px;
+}
+
+.lesson-banner p {
+  min-width: 0;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.lesson-cancellation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.lesson-cancellation-animation {
+  width: min(200px, 100%);
+  aspect-ratio: 1;
+}
+
+.lesson-cancellation p {
+  max-width: 440px;
+  margin: 0;
+  color: var(--app-text);
+  font-size: clamp(22px, 5vw, 28px);
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .lesson-loading-spinner {

@@ -15,9 +15,11 @@ import {
   type WheelEvent,
 } from "react";
 import type { Lesson } from "@/app/_data/schedule";
+import { TgsAnimation } from "@/app/_components/tgs-animation";
 import {
   formatScheduleDay,
   getScheduleForDay,
+  type DaySchedule,
 } from "@/app/_lib/schedule-api";
 
 const DAYS_IN_WEEK = 7;
@@ -60,6 +62,8 @@ type ScheduleData =
   | Readonly<{
       day: string;
       lessons: readonly Lesson[];
+      dayCancellation: DaySchedule["dayCancellation"];
+      banners: DaySchedule["banners"];
       status: "success";
     }>;
 
@@ -651,14 +655,14 @@ export function AppShell({ groupId, groupName, onChangeGroup, showHomework }: Ap
     const controller = new AbortController();
 
     void getScheduleForDay(groupId, selectedScheduleDay, controller.signal, showHomework)
-      .then((dayLessons) => {
+      .then((daySchedule) => {
         if (controller.signal.aborted) {
           return;
         }
 
         setScheduleData({
           day: selectedScheduleDay,
-          lessons: dayLessons,
+          ...daySchedule,
           status: "success",
         });
       })
@@ -826,14 +830,48 @@ export function AppShell({ groupId, groupName, onChangeGroup, showHomework }: Ap
                   </div>
                 ) : null}
                 {isLoadedDay && scheduleData.status === "error" ? (
-                  <p className="lesson-status">Занятий нет</p>
+                  <p className="lesson-status" role="alert">Не удалось загрузить расписание</p>
                 ) : null}
-                {isLoadedDay && scheduleData.status === "success" ? (
+                {isLoadedDay && scheduleData.status === "success" && scheduleData.dayCancellation ? (
+                  <div className="lesson-cancellation" role="status">
+                    <TgsAnimation
+                      ariaLabel="Спящая утка"
+                      className="lesson-cancellation-animation"
+                      src="/day-cancellation-duck.tgs"
+                    />
+                    <p>{scheduleData.dayCancellation.reason}</p>
+                  </div>
+                ) : null}
+                {isLoadedDay && scheduleData.status === "success" && !scheduleData.dayCancellation ? (
+                  scheduleData.banners.map((banner) => (
+                    <div className="lesson-banner" key={banner.id}>
+                      <svg
+                        aria-hidden="true"
+                        className="lesson-banner-icon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4" />
+                        <path d="M12 8h.01" />
+                      </svg>
+                      <p>{banner.text}</p>
+                    </div>
+                  ))
+                ) : null}
+                {isLoadedDay && scheduleData.status === "success" && !scheduleData.dayCancellation ? (
                   scheduleData.lessons.length > 0 ? (
                     <ol className="lesson-list">
                       {scheduleData.lessons.map((lesson, index) => {
                         const breakLabel = getBreakLabel(scheduleData.lessons[index - 1], lesson);
-                        const lessonKey = `${lesson.time}-${lesson.room}-${lesson.title}-${lesson.teacher}`;
+                        const lessonKey = String(lesson.id);
                         const lessonType = getLessonTypeTag(lesson.lessonType);
                         const homework = lesson.homework ?? [];
                         const homeworkIsExpanded = expandedHomework === lessonKey;
@@ -886,9 +924,9 @@ export function AppShell({ groupId, groupName, onChangeGroup, showHomework }: Ap
                         );
                       })}
                     </ol>
-                  ) : (
+                  ) : !scheduleData.dayCancellation ? (
                     <p className="lesson-status">Занятий нет</p>
-                  )
+                  ) : null
                 ) : null}
               </div>
             );

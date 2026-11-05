@@ -3,6 +3,7 @@ import {
   ADMIN_ACCESS_COOKIE,
   ADMIN_GROUP_COOKIE,
   ADMIN_SESSION_MAX_AGE,
+  getScheduleApiUrl,
 } from "@/app/_lib/admin-session";
 
 const cookieOptions = {
@@ -35,6 +36,18 @@ export async function POST(request: Request) {
 
   if (!Number.isInteger(groupId) || typeof key !== "string" || !key.trim()) {
     return NextResponse.json({ message: "Укажите группу и ключ." }, { status: 400 });
+  }
+
+  const upstream = await fetch(getScheduleApiUrl("/api/admin/schedule"), {
+    headers: { "X-Admin-Key": key.trim() },
+    cache: "no-store",
+  });
+  if (!upstream.ok) {
+    return NextResponse.json({ message: "Не удалось войти. Проверьте ключ группы." }, { status: upstream.status });
+  }
+  const schedule = await upstream.json() as { group_id?: number };
+  if (schedule.group_id !== groupId) {
+    return NextResponse.json({ message: "Ключ принадлежит другой группе." }, { status: 403 });
   }
 
   const response = NextResponse.json({ authenticated: true, groupId });
